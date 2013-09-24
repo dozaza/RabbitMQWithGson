@@ -2,7 +2,10 @@ import com.google.gson._
 import com.rabbitmq.client.{QueueingConsumer, ConnectionFactory}
 import java.io.{FileWriter, File}
 import java.lang.reflect.Type
+import marketdata.MarketData
+import scala.collection.mutable
 import scala._
+import scala.runtime.RichInt
 
 private class BigDecimalSerializer extends JsonSerializer[BigDecimal] {
 
@@ -18,70 +21,55 @@ private class BigDecimalDeserializer extends JsonDeserializer[BigDecimal] {
   }
 }
 
-
 object client {
 
-  private val EXCHANGE_NAME = "rtmdd.marketData.CN"
+  val QUEUE_NAME = "PMS_TEST_RMQ_CLIENT"
 
-  private val EQUITY_KEY = "marketData.CN.Equities"
+  val EXCHANGE_NAME = "rtmdd.marketData.CN"
 
-  private val FUTURE_KEY = "marketData.CN.Futures"
+  val EQUITY_KEY = "marketData.CN.Equities"
 
-  private val HOST = "10.20.136.21"
+  val FUTURE_KEY = "marketData.CN.Futures"
+
+  val HOST = "10.20.136.21"
+
+  def checkIsArray(message: String): String = {
+
+    val temp = checkIsArrayImplement(message, """"priceEarningRatio":""")
+    val result = checkIsArrayImplement(temp, """"priceRisesFall":""")
+    result
+  }
+
+  def checkIsArrayImplement(message: String, check: String): String = {
+    val posPE = message.indexOf(check)
+    if(posPE != -1) {
+      val quote = message.indexOf(",", posPE)
+      if(message.substring(posPE + check.length, posPE + check.length + 1) != "[") {
+        message.substring(0, posPE+check.length) + "[" + message.substring(posPE+check.length, quote) + "]" +
+          message.substring(quote)
+      }
+      else {
+        message
+      }
+    }
+    else {
+      message
+    }
+  }
+
+  def startThread() = {
+    val rmqt = new RmqThread
+    val t = new Thread(rmqt)
+    t.start()
+  }
 
   def main(args: Array[String]) = {
 
-    val factory = new ConnectionFactory
-    factory.setHost(HOST)
+    val current = System.currentTimeMillis()/1000;
+    val seconds: Long = 1380006191
+    val date = new java.util.Date(1380006191L*1000)
+    println(date)
 
-    val connection = factory.newConnection()
-    val channel = connection.createChannel()
-    val queueName = channel.queueDeclare().getQueue
-
-    channel.queueBind(queueName, EXCHANGE_NAME, EQUITY_KEY)
-    val consumer = new QueueingConsumer(channel)
-    channel.basicConsume(queueName, true, consumer)
-
-    println("queue name: " + queueName)
-    println("waiting for RabbitMQ messages")
-
-    val builder = new GsonBuilder
-    builder.registerTypeAdapter(classOf[BigDecimal], new BigDecimalSerializer)
-    builder.registerTypeAdapter(classOf[BigDecimal], new BigDecimalDeserializer)
-
-    val gson = builder.create()
-
-    val message = """"""
-    val marketdata = gson.fromJson(message, classOf[MarketData])
-    println(marketdata)
-
-    /*
-    val file = new File("./check")
-
-    if(file.exists())
-      file.delete
-    else {
-      file.createNewFile()
-    }
-
-    val fileWriter = new FileWriter(file)
-    */
-    /*
-    while(true)  {
-      val delivery = consumer.nextDelivery()
-      val message = new String(delivery.getBody)
-      val routingKey = delivery.getEnvelope.getRoutingKey
-
-      if(routingKey == EQUITY_KEY) {
-        //fileWriter.write(message.substring(message.indexOf("securityId"), message.indexOf("securityId")+18) + "  ")
-        //fileWriter.write(message + "\n")
-        //print(message)
-        //fileWriter.write(count + "\n")
-        println(message)
-        val marketdata = gson.fromJson(message, classOf[MarketData])
-        println(marketdata)
-      }
-    }
-    */
+    startThread()
   }
 }
