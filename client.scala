@@ -33,6 +33,8 @@ object client {
 
   val HOST = "10.20.136.21"
 
+  var count = 0;
+
   def checkIsArray(message: String): String = {
 
     val temp = checkIsArrayImplement(message, """"priceEarningRatio":""")
@@ -57,10 +59,16 @@ object client {
     }
   }
 
-  def startThread() = {
+  def startRMQThread() = {
     val rmqt = new RmqThread
     val t = new Thread(rmqt)
     t.start()
+  }
+
+  def startCountThread() = {
+    val count = new FluxCounter
+    val t = new Thread(count)
+    t.start
   }
 
   def main(args: Array[String]) = {
@@ -70,6 +78,7 @@ object client {
     val date = new java.util.Date(1380006191L*1000)
     println(date)
 
-    startThread()
+    startRMQThread()
+    startCountThread()
   }
 }

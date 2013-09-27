@@ -60,7 +60,11 @@ class RmqThread extends Runnable {
       if(routingKey == client.EQUITY_KEY) {
         //fileWriter.write(message.substring(message.indexOf("securityId"), message.indexOf("securityId")+18) + "  ")
         //fileWriter.write(message + "\n")
-        println(message)
+        client.count += 1
+        //if(message.contains("XSHG"))
+          //println(message)
+        //else
+          //println("not XSHG   ")
         //fileWriter.write(count + "\n")
         //println(message)
         //val check = checkIsArray(message)
