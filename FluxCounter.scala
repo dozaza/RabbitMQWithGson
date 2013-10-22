@@ -9,7 +9,7 @@ class FluxCounter extends Runnable{
 
   override def run() = {
     while(true) {
-      Thread.sleep(1000)
+      Thread.sleep(10000)
       println(client.count)
       client.count = 0
     }

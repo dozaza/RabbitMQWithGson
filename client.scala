@@ -31,7 +31,7 @@ object client {
 
   val FUTURE_KEY = "marketData.CN.Futures"
 
-  val HOST = "10.20.136.21"
+  var HOST = "10.20.136.21"//"10.20.136.21"
 
   var count = 0;
 
