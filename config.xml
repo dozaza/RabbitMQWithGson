@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="GB2312" standalone="no"?>
+<INFO>
+	<Rabbit value="2">
+	  <HostList>
+		<Host id="1" host="10.20.136.21"/>
+		<Host id="2" host="10.20.136.21"/>	
+	  </HostList>
+	</Rabbit>
+	<Redis value="2">
+	  <HostList>
+		<Host id="1" host="10.20.112.103" port="6379"/>
+		<Host id="2" host="10.20.136.21" port="6379"/>	
+	  </HostList>
+	</Redis>
+</INFO>
